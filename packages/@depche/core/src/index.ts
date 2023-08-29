@@ -1,16 +1,11 @@
 import preHook from "./hooks/preHook"
 
-import { Config, DepGraph } from './global'
+import { Config } from './global'
 import coreHook from "./hooks/coreHook";
-import webServerPostHook from "./hooks/webServerPostHook";
 
 class DepAnlz {
 
-    constructor(webServer: boolean) {
-        this.webServer = webServer
-    }
-
-    webServer: boolean = false
+    constructor() {}
 
     preHook() {
         return preHook();
@@ -20,16 +15,9 @@ class DepAnlz {
         return coreHook(config);
     }
 
-    postHook(depGraph: DepGraph) {
-        webServerPostHook(depGraph)
-    }
-
     lifeCycle() {
         const config = this.preHook();
         const depGraph = this.coreHook(config)
-        if (this.webServer) {
-            this.postHook(depGraph)
-        }
         return depGraph
     }
 }

@@ -10,27 +10,10 @@ declare class DepAnlz {
     webServer: boolean;
     preHook(): Config;
     coreHook(config: Config): DepGraph;
-    postHook(depGraph: DepGraph): void;
     lifeCycle(): DepGraph;
-  }
-
-declare class DepGraph {
-    Nodes: Array<DepNode>
-    Edges: Array<DepRel>
-    constructor();
-    insertNode(dependence: string, version: string, category: number): void
-    // insertEgde(depName, version, fromNode) {
-    // const edge = {
-    //     source: fromNode,
-    //     target: depName + version
-    // }
-    // this.edges.push(edge)
-    // }
 }
-
 
 export {
     Config,
-    DepAnlz,
-    DepGraph
+    DepAnlz
 }

@@ -2,24 +2,7 @@
 
 var core = require('@depche/core');
 
-var RESET = "\x1b[0m";
-var RED = "\x1b[31m";
-var GREEN = "\x1b[32m";
-function red(str) {
-    return RED + str + RESET;
-}
-function green(str) {
-    return GREEN + str + RESET;
-}
-
-function log(message) {
-    console.log(message);
-}
-function success(message) {
-    console.log(green(message));
-}
-
-var version = "0.0.1-rca";
+var version = "0.0.1-rcc.1";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -57,6 +40,16 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
+var RESET = "\x1b[0m";
+var RED = "\x1b[31m";
+var GREEN = "\x1b[32m";
+function red(str) {
+    return RED + str + RESET;
+}
+function green(str) {
+    return GREEN + str + RESET;
+}
+
 var UnkonwnCommandError = /** @class */ (function (_super) {
     __extends(UnkonwnCommandError, _super);
     function UnkonwnCommandError(message) {
@@ -67,11 +60,14 @@ var UnkonwnCommandError = /** @class */ (function (_super) {
     return UnkonwnCommandError;
 }(Error));
 
-var args = process.argv.slice(2);
-var input = args[0];
-var globalOptions = ["-V", "--version", "-h", "--help"];
-var commands = [undefined, "analyze"];
-function printHelp() {
+function log(message) {
+    console.log(message);
+}
+function success(message) {
+    console.log(green(message));
+}
+
+function globalConsole(version) {
     success('\n==================================');
     success("\uD83D\uDD0Ddepanlz version ".concat(version));
     success('==================================\n');
@@ -82,20 +78,59 @@ function printHelp() {
     log('Commands:');
     log('   analyze [options]                      Analyze dependencies for your project');
 }
+
+function analyzeConsole() {
+    success('\n==================================');
+    success("\uD83D\uDD0Ddepanlz analyze");
+    success('==================================\n');
+    log('Usage: depanlz analyze [options]\n');
+    log("Options:");
+    log('   -j, --json                             Show the version number');
+    log('   -h, --help                             Display help for command');
+    log('   -w, --web                              Start a web server for check dependencies\n');
+}
+
+function analyze(argument) {
+    var help = argument[0];
+    var jsonFlag = argument.includes("-j") || argument.includes("--json");
+    var webFlag = argument.includes("-w") || argument.includes("--web");
+    if (help === "-h" || help === "--help") {
+        return analyzeConsole();
+    }
+    var depGraph = new core.DepAnlz().lifeCycle();
+    if (jsonFlag && !webFlag) {
+        console.log("json");
+        console.log(JSON.stringify(depGraph));
+    }
+    else if (webFlag && !jsonFlag) {
+        console.log("web");
+    }
+    else if (jsonFlag && webFlag) {
+        console.log("json and web");
+    }
+    else {
+        console.log("no json no web");
+        console.log(depGraph);
+    }
+}
+
+var args = process.argv.slice(2);
+var input = args[0];
+var argument = process.argv.slice(3);
+var globalOptions = ["-V", "--version", "-h", "--help"];
+var commands = [undefined, "analyze"];
 var flag = globalOptions.includes(input) || commands.includes(input);
 try {
     if (!flag)
-        throw new UnkonwnCommandError("pleast --help command unknown");
+        throw new UnkonwnCommandError("(!) You have passed an unrecognized command");
 }
 catch (e) {
     console.log(e);
 }
 if (input === "-h" || input === "--help" || input === undefined)
-    printHelp();
+    globalConsole(version);
 if (input === "-V" || input === "--version")
-    log("\uD83D\uDD0Ddepanlz v".concat(version));
+    console.log("\uD83D\uDD0Ddepanlz v".concat(version));
 if (input === "analyze") {
-    log("⚙️ 开始分析依赖");
-    var depGraph = new core.DepAnlz().lifeCycle();
-    console.log(depGraph);
+    analyze(argument);
 }

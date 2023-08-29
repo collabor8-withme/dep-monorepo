@@ -8,5 +8,5 @@ class UnkonwnCommandError extends Error {
 }
 
 export {
-    UnkonwnCommandError
+    UnkonwnCommandError,
 }

@@ -1,11 +1,11 @@
 {
   "name": "@depche/cli",
-  "version": "0.0.1-rca",
+  "version": "0.0.1-rcc.1",
   "description": "depanlz is a dependencies analyze tool",
   "main": "cli/depche.js",
   "type": "module",
   "bin": {
-    "depanlz": "dist/depanlz.cjs"
+    "depanlz": "./bin/depanlz.cjs"
   },
   "scripts": {
     "build": "rollup -c -w"

@@ -1,7 +1,7 @@
 import http from "http"
-import DepGraph from "../DepGraph";
+import DepGraph from "./DepGraph";
 
-function webServerPostHook
+function webServer
 (depGraph: DepGraph) {
     const categories = [
         { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
@@ -118,7 +118,7 @@ html, body {
     })
 }
 
-export default webServerPostHook
+export default webServer
 
 
 

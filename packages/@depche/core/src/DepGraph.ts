@@ -1,8 +1,8 @@
 type DepNode = {
-    name: string,
-    depName: string,
-    value: string,
-    category: number
+    id: string,
+    dependence: string,
+    version: string,
+    level: number
 }
 
 type DepRel = {
@@ -11,33 +11,32 @@ type DepRel = {
 }
 
 function isArrContainObj(arr: Array<DepNode>, obj: DepNode): boolean {
-    return arr.some(node => node.depName === obj.depName);
+    return arr.some(node => node.dependence === obj.dependence);
 }
 
 class DepGraph {
-    Nodes: Array<DepNode>
-    Edges: Array<DepRel>
+    nodes: Array<DepNode>
+    edges: Array<DepRel>
 
     constructor() {
-        this.Nodes = []
-        this.Edges = []
+        this.nodes = []
+        this.edges = []
     }
 
-    insertNode(dependence: string, version: string, category: number) {
+    insertNode(dependence: string, version: string, level: number) {
         const node: DepNode = {
-            name: dependence + version,
-            depName: dependence,
-            value: version,
-            category
+            id: dependence + version,
+            dependence,
+            version,
+            level
         }
-
-        !isArrContainObj(this.Nodes, node) && this.Nodes.push(node)
+        !isArrContainObj(this.nodes, node) && this.nodes.push(node)
     }
 
-    // insertEgde(depName, version, fromNode) {
+    // insertEgde(dependence, version, fromNode) {
         // const edge = {
         //     source: fromNode,
-        //     target: depName + version
+        //     target: dependence + version
         // }
 
         // this.edges.push(edge)

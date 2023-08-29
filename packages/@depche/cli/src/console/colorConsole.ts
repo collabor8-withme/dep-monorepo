@@ -1,4 +1,4 @@
-import {red, yellow, green} from './colorful'
+import {red, yellow, green} from '../utils/colorful'
 
 function log(message: string): void {
     console.log(message)
