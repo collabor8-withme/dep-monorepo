@@ -1,8 +1,7 @@
 import http from "http"
-import DepGraph from "./DepGraph";
-
-function webServer
-(depGraph: DepGraph) {
+import { DepGraph } from "../index";
+import { exec } from "child_process";
+function webServer(depGraph: DepGraph): any {
     const categories = [
         { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
         { name: 'depth2', color: '#4992ff', symbolSize: 70 },
@@ -63,18 +62,19 @@ function webServer
                     opacity: 0.7
                 },
                 categories: categories.map(category => ({ name: category.name })),
-                nodes: depGraph.Nodes.map(node => ({
+                nodes: depGraph.nodes.map(node => ({
                     ...node,
-                    symbolSize: categories[node.category].symbolSize,
-                    itemStyle: { color: categories[node.category].color }
+                    name: node.dependence,
+                    symbolSize: categories[node.level].symbolSize,
+                    itemStyle: { color: categories[node.level].color }
                 })),
-                edges: depGraph.Edges,
+                edges: depGraph.edges,
             }
         ]
     }
 
     const str = JSON.stringify(option, null, 2)
-
+    const PORT = 3000
     http.createServer((req, res) => {
 
         const html = `
@@ -113,12 +113,26 @@ html, body {
 </html>
             `;
         res.end(html)
-    }).listen(3000, () => {
+    }).listen(PORT, () => {
         console.log("http://localhost:3000")
+        // 在 Unix-like 系统中，使用 open 命令
+        if (process.platform === 'darwin') {
+            exec(`open http://localhost:${PORT}`);
+        }
+        // 在 Windows 系统中，使用 start 命令
+        else if (process.platform === 'win32') {
+            exec(`start http://localhost:${PORT}`);
+        }
+        // 在 Linux 等系统中，可以使用 xdg-open 命令
+        else {
+            exec(`xdg-open http://localhost:${PORT}`);
+        }
     })
 }
 
-export default webServer
+export {
+    webServer
+}
 
 
 

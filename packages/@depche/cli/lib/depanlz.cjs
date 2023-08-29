@@ -1,8 +1,9 @@
 'use strict';
 
 var core = require('@depche/core');
+var webServer = require('@depche/web-server');
 
-var version = "0.0.1-rcc.1";
+var version = "0.0.1-rcc.10";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -97,19 +98,18 @@ function analyze(argument) {
     if (help === "-h" || help === "--help") {
         return analyzeConsole();
     }
-    var depGraph = new core.DepAnlz().lifeCycle();
+    var depanlz = new core.DepAnlz();
+    var depGraph = depanlz.lifeCycle();
     if (jsonFlag && !webFlag) {
-        console.log("json");
         console.log(JSON.stringify(depGraph));
     }
     else if (webFlag && !jsonFlag) {
-        console.log("web");
+        depanlz.postHook(webServer.webServer);
     }
     else if (jsonFlag && webFlag) {
         console.log("json and web");
     }
     else {
-        console.log("no json no web");
         console.log(depGraph);
     }
 }

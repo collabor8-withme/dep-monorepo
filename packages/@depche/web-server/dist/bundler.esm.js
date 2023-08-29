@@ -1,4 +1,5 @@
 import http from 'http';
+import { exec } from 'child_process';
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -93,18 +94,31 @@ function webServer(depGraph) {
                     opacity: 0.7
                 },
                 categories: categories.map(function (category) { return ({ name: category.name }); }),
-                nodes: depGraph.Nodes.map(function (node) { return (__assign(__assign({}, node), { symbolSize: categories[node.category].symbolSize, itemStyle: { color: categories[node.category].color } })); }),
-                edges: depGraph.Edges,
+                nodes: depGraph.nodes.map(function (node) { return (__assign(__assign({}, node), { name: node.dependence, symbolSize: categories[node.level].symbolSize, itemStyle: { color: categories[node.level].color } })); }),
+                edges: depGraph.edges,
             }
         ]
     };
     var str = JSON.stringify(option, null, 2);
+    var PORT = 3000;
     http.createServer(function (req, res) {
         var html = "\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Document</title>\n</head>\n<style>\nhtml, body {\n    margin: 0;\n    padding: 0;\n    width: 100vw;\n    height: 100vh;\n}\n\n#container {\n    width: 100%;\n    height: 100%;\n}\n</style>\n<body>\n    <div id=\"container\"></div>\n    <script src=\"https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js\"></script>\n    <script>\n                const myChart = echarts.init(document.getElementById('container'));\n                myChart.showLoading();\n                myChart.hideLoading();\n                const option = ".concat(str, "\n                myChart.setOption(option);\n                console.log(echarts)\n    </script>\n</body>\n</html>\n            ");
         res.end(html);
-    }).listen(3000, function () {
+    }).listen(PORT, function () {
         console.log("http://localhost:3000");
+        // 在 Unix-like 系统中，使用 open 命令
+        if (process.platform === 'darwin') {
+            exec("open http://localhost:".concat(PORT));
+        }
+        // 在 Windows 系统中，使用 start 命令
+        else if (process.platform === 'win32') {
+            exec("start http://localhost:".concat(PORT));
+        }
+        // 在 Linux 等系统中，可以使用 xdg-open 命令
+        else {
+            exec("xdg-open http://localhost:".concat(PORT));
+        }
     });
 }
 
-export { webServer as default };
+export { webServer };

@@ -1,6 +1,6 @@
 {
   "name": "@depche/core",
-  "version": "0.0.1-rcb",
+  "version": "0.0.1-rcb.3",
   "description": "",
   "main": "dist/bundler.cjs",
   "module": "dist/bundler.esm.js",

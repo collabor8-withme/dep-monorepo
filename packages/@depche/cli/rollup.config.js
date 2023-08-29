@@ -14,6 +14,7 @@ export default {
         json()
     ],
     external: [
-        "@depche/core"
+        "@depche/core",
+        "@depche/web-server"
     ]
 }

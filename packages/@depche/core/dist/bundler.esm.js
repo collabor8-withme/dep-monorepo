@@ -123,6 +123,10 @@ var DepAnlz = /** @class */ (function () {
     DepAnlz.prototype.coreHook = function (config) {
         return coreHook(config);
     };
+    DepAnlz.prototype.postHook = function (callback) {
+        var result = callback(this.lifeCycle());
+        return result;
+    };
     DepAnlz.prototype.lifeCycle = function () {
         var config = this.preHook();
         var depGraph = this.coreHook(config);

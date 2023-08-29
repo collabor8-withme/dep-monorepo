@@ -1,4 +1,5 @@
 import { DepAnlz } from '@depche/core'
+import { webServer } from "@depche/web-server"
 import analyzeConsole from '../console/analyzeConsole'
 
 function analyze(argument: Array<string>) {
@@ -12,19 +13,25 @@ function analyze(argument: Array<string>) {
         return analyzeConsole()
     }
 
-    const depGraph = new DepAnlz().lifeCycle()
+    const depanlz = new DepAnlz()
+    const depGraph = depanlz.lifeCycle()
+
     if (jsonFlag && !webFlag) {
-        console.log("json")
+
         console.log(JSON.stringify(depGraph))
+
     } else if (webFlag && !jsonFlag) {
-        console.log("web")
+
+        depanlz.postHook(webServer)
+
     } else if (jsonFlag && webFlag) {
+
         console.log("json and web")
+
     } else {
-        console.log("no json no web")
+
         console.log(depGraph)
     }
-
 
 }
 
