@@ -1,0 +1,12 @@
+{
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@depche/cli": "workspace:0.0.1-rcc.12",
+    "@depche/core": "workspace:0.0.1-rcb.8",
+    "@depche/web-server": "workspace:0.0.1-alpha.10",
+    "axios": "^1.5.0",
+    "react": "^18.2.0"
+  }
+}

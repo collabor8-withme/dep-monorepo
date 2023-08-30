@@ -1,6 +1,6 @@
 {
   "name": "@depche/cli",
-  "version": "0.0.1-rcc.11",
+  "version": "0.0.1-rcc.13",
   "description": "depanlz is a dependencies analyze tool",
   "main": "cli/depche.js",
   "type": "module",

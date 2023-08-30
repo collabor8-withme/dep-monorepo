@@ -1,43 +1,102 @@
+import { join } from 'path'
 import { DepAnlz } from '@depche/core'
 import { webServer } from "@depche/web-server"
 import analyzeConsole from '../console/analyzeConsole'
+import { stringifyGraph, ObjifyGraph } from './transformGraph'
+import { writeFileSync } from 'fs'
+import { success } from '../console/colorConsole'
 
 function analyze(argument: Array<string>) {
     const options = ["-h", "--help", "-j", "--json", "-w", "--web", "-d", "--depth"]
 
+    /**
+     * depanlz analyze -h
+     * depanlz analyze --help
+     */
     const help = argument[0]
     if (help === "-h" || help === "--help") {
         return analyzeConsole()
     }
 
-    let depth;
-    if (argument.indexOf("-d") !== -1) {
-        depth = parseInt(argument[argument.indexOf("-d") + 1])
-    } else if (argument.indexOf("--depth") !== -1) {
-        depth = parseInt(argument[argument.indexOf("--depth") + 1])
+    /**
+     * depanlz analyze -d
+     * depanlz analyze --depth
+     */
+    let depth = 3;
+    const dIndex: number = argument.indexOf("-d")
+    const depthIndex: number = argument.indexOf("--depth")
+
+    if (dIndex !== -1) {
+        const depthNumber: number = parseInt(argument[dIndex + 1])
+        depth = isNaN(depthNumber) ? depth : depthNumber
+    } else if (depthIndex !== -1) {
+        const depthNumber: number = parseInt(argument[depthIndex + 1])
+        depth = isNaN(depthNumber) ? depth : depthNumber
     }
 
-    const jsonFlag = argument.includes("-j") || argument.includes("--json")
-    const webFlag = argument.includes("-w") || argument.includes("--web")
+    /**
+     * depanlz analyze -j
+     * depanlz analyze --json
+     */
+    const cwd = process.cwd()
+    let filePath = join(cwd, "depGraph.json");
+    const jsonFlag = argument.includes("--json") || argument.includes("-j")
+    const jIndex = argument.indexOf("-j")
+    const jsonIndex = argument.indexOf("--json")
 
-    const depanlz = new DepAnlz()
+    if (jIndex !== -1) {
+        let fileName = argument[jIndex + 1]
+        if (fileName === undefined) {
+            fileName = String("-" + fileName)
+        }
+        filePath = fileName.startsWith("-") ? filePath : join(cwd, fileName)
+    } else if (jsonIndex !== -1) {
+        let fileName: string = argument[jsonIndex + 1]
+        if (fileName === undefined) {
+            fileName = String("-" + fileName)
+        }
+        filePath = fileName.startsWith("-") ? filePath : join(cwd, fileName)
+    }
+
+    /**
+     * depanlz analyze -w
+     * depanlz analyze --web
+     */
+    let PORT = 3000;
+    const webFlag = argument.includes("-w") || argument.includes("--web")
+    const wIndex: number = argument.indexOf("-w")
+    const webthIndex: number = argument.indexOf("--web")
+
+    if (wIndex !== -1) {
+        const port: number = parseInt(argument[wIndex + 1])
+        PORT = isNaN(port) ? PORT : port
+    } else if (webthIndex !== -1) {
+        const port: number = parseInt(argument[webthIndex + 1])
+        PORT = isNaN(port) ? PORT : port
+    }
+
+    const depanlz = new DepAnlz(depth)
     const depGraph = depanlz.lifeCycle()
 
     if (jsonFlag && !webFlag) {
-
-        console.log(JSON.stringify(depGraph))
-
+        const json = stringifyGraph(depGraph)
+        writeFileSync(filePath, json)
+        success(`Dependency analysis file are created in 
+        ${filePath}`)
     } else if (webFlag && !jsonFlag) {
-
+        webServer.prototype.PORT = PORT
         depanlz.postHook(webServer)
-
     } else if (jsonFlag && webFlag) {
+        const json = stringifyGraph(depGraph)
+        writeFileSync(filePath, json)
+        success(`Dependency analysis file are created in 
+        ${filePath}\n`)
 
-        console.log("json and web")
-
+        webServer.prototype.PORT = PORT
+        depanlz.postHook(webServer)
     } else {
-
-        console.log(depGraph)
+        const obj = ObjifyGraph(depGraph)
+        console.log(obj)
     }
 
 }

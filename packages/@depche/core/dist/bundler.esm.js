@@ -80,8 +80,7 @@ var DepGraph = /** @class */ (function () {
             source: fromNodeId,
             target: toNodeId
         };
-        if (edge.source !== "")
-            this.edges.push(edge);
+        this.edges.push(edge);
     };
     return DepGraph;
 }());
@@ -118,8 +117,8 @@ function coreHook(config) {
         var content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        var _a = JSON.parse(content), dependencies = _a.dependencies, name_1 = _a.name, version = _a.version;
-        var sourceId = name_1 + version || "";
+        var _a = JSON.parse(content), dependencies = _a.dependencies, _b = _a.name, name_1 = _b === void 0 ? "YourProject" : _b, _c = _a.version, version = _c === void 0 ? "@latest" : _c;
+        var sourceId = name_1 + version;
         depGraph.insertNode(name_1, version, 0);
         recursiveDep4YarnAndNpm(dependencies, sourceId, config);
     }

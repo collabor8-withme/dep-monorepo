@@ -49,8 +49,8 @@ function coreHook(config: Config) {
         const content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        const { dependencies, name, version } = JSON.parse(content);
-        const sourceId = name + version || ""
+        const { dependencies, name = "YourProject", version = "@latest" } = JSON.parse(content);
+        const sourceId = name + version
         depGraph.insertNode(name, version, 0)
         recursiveDep4YarnAndNpm(dependencies, sourceId, config)
     }

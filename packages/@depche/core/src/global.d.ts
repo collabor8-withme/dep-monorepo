@@ -24,7 +24,8 @@ declare class DepGraph {
 }
 
 declare class DepAnlz {
-    constructor();
+    depth: number
+    constructor(depth: number);
     preHook(): Config;
     coreHook(config: Config): DepGraph;
     postHook(callback: (config:Config, depGraph: DepGraph) => any): any;
@@ -33,6 +34,8 @@ declare class DepAnlz {
 
 export {
     Config,
+    DepNode,
+    DepRel,
     DepGraph,
     DepAnlz
 }

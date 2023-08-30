@@ -1,15 +1,17 @@
 import http from "http"
 import { Config, DepGraph } from "../index";
 import { exec } from "child_process";
+
 function webServer(config: Config, depGraph: DepGraph): any {
     const depthType = [
-        { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
-        { name: 'depth2', color: '#4992ff', symbolSize: 70 },
-        { name: 'depth3', color: '#7cffb2', symbolSize: 50 },
-        { name: 'depth4', color: '#8d48e3', symbolSize: 30 },
-        { name: 'depth5', color: '#58d9f9', symbolSize: 20 },
-        { name: 'depth6', color: '#05c091', symbolSize: 15 },
-        { name: 'depth7', color: '#ff8a45', symbolSize: 10 },
+        { name: 'depth1', color: '#ff6e76', symbolSize: 200 },
+        { name: 'depth2', color: '#4992ff', symbolSize: 120 },
+        { name: 'depth3', color: '#7cffb2', symbolSize: 80 },
+        { name: 'depth4', color: '#8d48e3', symbolSize: 50 },
+        { name: 'depth5', color: '#58d9f9', symbolSize: 30 },
+        { name: 'depth6', color: '#05c091', symbolSize: 25 },
+        { name: 'depth7', color: '#ff8a45', symbolSize: 15 },
+        { name: 'depth8', color: '#ff8a45', symbolSize: 5 },
     ];
 
     const option = {
@@ -23,7 +25,7 @@ function webServer(config: Config, depGraph: DepGraph): any {
         tooltip: {
             trigger: "item"
         },
-        color: ['#ff6e76', '#4992ff', '#7cffb2', '#8d48e3', '#58d9f9', '#05c091', '#ff8a45'],
+        color: ['#ff6e76', '#4992ff', '#7cffb2', '#8d48e3', '#58d9f9', '#05c091', '#ff8a45', '#f88a45'],
         legend: {
             right: 0,
             orient: 'vertical',
@@ -33,7 +35,7 @@ function webServer(config: Config, depGraph: DepGraph): any {
             padding: 20,
             itemWidth: 30,
             itemHeight: 15,
-            data: ["depth1", "depth2", "depth3", "depth4", "depth5", "depth6", "depth7"]
+            data: ["depth1", "depth2", "depth3", "depth4", "depth5", "depth6", "depth7", "depth8"]
         },
         darkMode: true,
         backgroundColor: "#100C2A",
@@ -69,20 +71,22 @@ function webServer(config: Config, depGraph: DepGraph): any {
                     opacity: 0.7
                 },
                 categories: depthType.slice(0, config.DEPTH),
-                nodes: depGraph.nodes.map(node => ({
-                    ...node,
-                    name: node.id,
-                    category: node.level - 1,
-                    symbolSize: depthType[node.level - 1].symbolSize,
-                    itemStyle: { color: depthType[node.level - 1].color }
-                })),
+                nodes: depGraph.nodes.map(node => {
+                    return {
+                        ...node,
+                        name: node.id,
+                        category: node.level,
+                        symbolSize: depthType[node.level].symbolSize,
+                        itemStyle: { color: depthType[node.level].color }
+                    }
+                }),
                 edges: depGraph.edges,
             }
         ]
     }
 
     const str = JSON.stringify(option, null, 2)
-    const PORT = 3000
+    const PORT = webServer.prototype.PORT
     http.createServer((req, res) => {
 
         const html = `
@@ -122,7 +126,7 @@ html, body {
             `;
         res.end(html)
     }).listen(PORT, () => {
-        console.log("http://localhost:3000")
+        console.log(`The dependency graph is rendered in http://localhost:${PORT}`)
         // 在 Unix-like 系统中，使用 open 命令
         if (process.platform === 'darwin') {
             exec(`open http://localhost:${PORT}`);

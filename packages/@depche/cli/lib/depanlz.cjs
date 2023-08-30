@@ -1,9 +1,11 @@
 'use strict';
 
+var path = require('path');
 var core = require('@depche/core');
 var webServer = require('@depche/web-server');
+var fs = require('fs');
 
-var version = "0.0.1-rcc.11";
+var version = "0.0.1-rcc.13";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -91,32 +93,114 @@ function analyzeConsole() {
     log('   -w, --web                              Start a web server for check dependencies\n');
 }
 
+function findNodeById(nodes, id) {
+    return nodes.find(function (node) { return node.id === id; });
+}
+function buildDependencyTree(node, nodes, edges) {
+    var relations = edges.filter(function (edge) { return edge.source === node.id; });
+    var dependencies = relations.map(function (relation) { return buildDependencyTree(findNodeById(nodes, relation.target), nodes, edges); });
+    return {
+        name: node.dependence,
+        version: node.version,
+        depth: node.level,
+        dependencies: dependencies.length === 0 ? null : dependencies
+    };
+}
+function stringifyGraph(depGraph) {
+    var nodes = depGraph.nodes, edges = depGraph.edges;
+    var rootNode = nodes[0];
+    return JSON.stringify(buildDependencyTree(rootNode, nodes, edges));
+}
+function ObjifyGraph(depGraph) {
+    var nodes = depGraph.nodes, edges = depGraph.edges;
+    var rootNode = nodes[0];
+    return buildDependencyTree(rootNode, nodes, edges);
+}
+
 function analyze(argument) {
+    /**
+     * depanlz analyze -h
+     * depanlz analyze --help
+     */
     var help = argument[0];
     if (help === "-h" || help === "--help") {
         return analyzeConsole();
     }
-    if (argument.indexOf("-d") !== -1) {
-        parseInt(argument[argument.indexOf("-d") + 1]);
+    /**
+     * depanlz analyze -d
+     * depanlz analyze --depth
+     */
+    var depth = 3;
+    var dIndex = argument.indexOf("-d");
+    var depthIndex = argument.indexOf("--depth");
+    if (dIndex !== -1) {
+        var depthNumber = parseInt(argument[dIndex + 1]);
+        depth = isNaN(depthNumber) ? depth : depthNumber;
     }
-    else if (argument.indexOf("--depth") !== -1) {
-        parseInt(argument[argument.indexOf("--depth") + 1]);
+    else if (depthIndex !== -1) {
+        var depthNumber = parseInt(argument[depthIndex + 1]);
+        depth = isNaN(depthNumber) ? depth : depthNumber;
     }
-    var jsonFlag = argument.includes("-j") || argument.includes("--json");
+    /**
+     * depanlz analyze -j
+     * depanlz analyze --json
+     */
+    var cwd = process.cwd();
+    var filePath = path.join(cwd, "depGraph.json");
+    var jsonFlag = argument.includes("--json") || argument.includes("-j");
+    var jIndex = argument.indexOf("-j");
+    var jsonIndex = argument.indexOf("--json");
+    if (jIndex !== -1) {
+        var fileName = argument[jIndex + 1];
+        if (fileName === undefined) {
+            fileName = String("-" + fileName);
+        }
+        filePath = fileName.startsWith("-") ? filePath : path.join(cwd, fileName);
+    }
+    else if (jsonIndex !== -1) {
+        var fileName = argument[jsonIndex + 1];
+        if (fileName === undefined) {
+            fileName = String("-" + fileName);
+        }
+        filePath = fileName.startsWith("-") ? filePath : path.join(cwd, fileName);
+    }
+    /**
+     * depanlz analyze -w
+     * depanlz analyze --web
+     */
+    var PORT = 3000;
     var webFlag = argument.includes("-w") || argument.includes("--web");
-    var depanlz = new core.DepAnlz();
+    var wIndex = argument.indexOf("-w");
+    var webthIndex = argument.indexOf("--web");
+    if (wIndex !== -1) {
+        var port = parseInt(argument[wIndex + 1]);
+        PORT = isNaN(port) ? PORT : port;
+    }
+    else if (webthIndex !== -1) {
+        var port = parseInt(argument[webthIndex + 1]);
+        PORT = isNaN(port) ? PORT : port;
+    }
+    var depanlz = new core.DepAnlz(depth);
     var depGraph = depanlz.lifeCycle();
     if (jsonFlag && !webFlag) {
-        console.log(JSON.stringify(depGraph));
+        var json = stringifyGraph(depGraph);
+        fs.writeFileSync(filePath, json);
+        success("Dependency analysis file are created in \n        ".concat(filePath));
     }
     else if (webFlag && !jsonFlag) {
+        webServer.webServer.prototype.PORT = PORT;
         depanlz.postHook(webServer.webServer);
     }
     else if (jsonFlag && webFlag) {
-        console.log("json and web");
+        var json = stringifyGraph(depGraph);
+        fs.writeFileSync(filePath, json);
+        success("Dependency analysis file are created in \n        ".concat(filePath, "\n"));
+        webServer.webServer.prototype.PORT = PORT;
+        depanlz.postHook(webServer.webServer);
     }
     else {
-        console.log(depGraph);
+        var obj = ObjifyGraph(depGraph);
+        console.log(obj);
     }
 }
 

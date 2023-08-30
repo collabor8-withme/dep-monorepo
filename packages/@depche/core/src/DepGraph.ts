@@ -38,7 +38,7 @@ class DepGraph {
             source: fromNodeId,
             target: toNodeId
         }
-        if(edge.source !== "") this.edges.push(edge)
+        this.edges.push(edge)
     }
 }
 
