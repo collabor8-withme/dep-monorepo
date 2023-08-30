@@ -1,6 +1,5 @@
 import { join } from 'path'
 import { DepAnlz } from '@depche/core'
-import { webServer } from "@depche/web-server"
 import analyzeConsole from '../console/analyzeConsole'
 import { stringifyGraph, ObjifyGraph } from './transformGraph'
 import { writeFileSync } from 'fs'
@@ -84,16 +83,21 @@ function analyze(argument: Array<string>) {
         success(`Dependency analysis file are created in 
         ${filePath}`)
     } else if (webFlag && !jsonFlag) {
-        webServer.prototype.PORT = PORT
-        depanlz.postHook(webServer)
+        import("@depche/web-server").then(module => {
+            const { webServer } = module
+            webServer.prototype.PORT = PORT
+            depanlz.postHook(webServer)
+        })
     } else if (jsonFlag && webFlag) {
         const json = stringifyGraph(depGraph)
         writeFileSync(filePath, json)
         success(`Dependency analysis file are created in 
         ${filePath}\n`)
-
-        webServer.prototype.PORT = PORT
-        depanlz.postHook(webServer)
+        import("@depche/web-server").then(module => {
+            const { webServer } = module
+            webServer.prototype.PORT = PORT
+            depanlz.postHook(webServer)
+        })
     } else {
         const obj = ObjifyGraph(depGraph)
         console.log(obj)

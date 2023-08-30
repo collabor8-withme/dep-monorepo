@@ -111,9 +111,40 @@ function recursiveDep4YarnAndNpm(dependencies, sourceId, config, level, processe
         processedDeps.delete(depName);
     }
 }
+function recursiveDep4Pnpm(dependencies, sourceId, config, level, processedDeps) {
+    if (level === void 0) { level = 1; }
+    if (processedDeps === void 0) { processedDeps = new Set(); }
+    for (var depName in dependencies) {
+        var NODE_MODULES_DIR = config.NODE_MODULES_DIR, DEPTH = config.DEPTH;
+        if (level === DEPTH + 1) {
+            return;
+        }
+        if (processedDeps.has(depName)) {
+            continue;
+        }
+        processedDeps.add(depName);
+        // 记录目标节点
+        var targetId = depName + dependencies[depName];
+        depGraph.insertNode(depName, dependencies[depName], level);
+        depGraph.insertEgde(sourceId, targetId);
+        var nestedPkgJson = "";
+        if (level === 1) {
+            nestedPkgJson = path.join(NODE_MODULES_DIR, depName, "package.json");
+        }
+        else {
+            nestedPkgJson = path.join(NODE_MODULES_DIR, ".pnpm/node_modules", depName, "package.json");
+        }
+        var content = fs.readFileSync(nestedPkgJson, {
+            encoding: "utf-8"
+        });
+        var dep = JSON.parse(content).dependencies;
+        recursiveDep4Pnpm(dep, targetId, config, level + 1, processedDeps);
+        processedDeps.delete(depName);
+    }
+}
 function coreHook(config) {
     var PKG_JSON_DIR = config.PKG_JSON_DIR, PKG_MANAGER = config.PKG_MANAGER;
-    if (PKG_MANAGER === "yarn" || "npm") {
+    if (PKG_MANAGER === "yarn" || PKG_MANAGER === "npm") {
         var content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
@@ -127,7 +158,10 @@ function coreHook(config) {
         var content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        var dependencies = JSON.parse(content).dependencies;
+        var _d = JSON.parse(content), dependencies = _d.dependencies, _e = _d.name, name_2 = _e === void 0 ? "YourProject" : _e, _f = _d.version, version = _f === void 0 ? "@latest" : _f;
+        var sourceId = name_2 + version;
+        depGraph.insertNode(name_2, version, 0);
+        recursiveDep4Pnpm(dependencies, sourceId, config);
     }
     return depGraph;
 }

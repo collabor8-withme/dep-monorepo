@@ -2,10 +2,9 @@
 
 var path = require('path');
 var core = require('@depche/core');
-var webServer = require('@depche/web-server');
 var fs = require('fs');
 
-var version = "0.0.1-rcc.13";
+var version = "0.0.1-rcc.18";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -188,15 +187,21 @@ function analyze(argument) {
         success("Dependency analysis file are created in \n        ".concat(filePath));
     }
     else if (webFlag && !jsonFlag) {
-        webServer.webServer.prototype.PORT = PORT;
-        depanlz.postHook(webServer.webServer);
+        import('@depche/web-server').then(function (module) {
+            var webServer = module.webServer;
+            webServer.prototype.PORT = PORT;
+            depanlz.postHook(webServer);
+        });
     }
     else if (jsonFlag && webFlag) {
         var json = stringifyGraph(depGraph);
         fs.writeFileSync(filePath, json);
         success("Dependency analysis file are created in \n        ".concat(filePath, "\n"));
-        webServer.webServer.prototype.PORT = PORT;
-        depanlz.postHook(webServer.webServer);
+        import('@depche/web-server').then(function (module) {
+            var webServer = module.webServer;
+            webServer.prototype.PORT = PORT;
+            depanlz.postHook(webServer);
+        });
     }
     else {
         var obj = ObjifyGraph(depGraph);
