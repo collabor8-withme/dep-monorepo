@@ -12,4 +12,4 @@ function globalConsole(version: string) {
     log('   analyze [options]                      Analyze dependencies for your project');
 }
 
-export default globalConsole
+export default globalConsole;

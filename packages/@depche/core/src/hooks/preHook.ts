@@ -6,7 +6,7 @@
  * 
  * 返回package.json node_modules的绝对目录，以及包管理器名称
  */
-import { join } from "path"
+import { join } from "path";
 import { isFileExists } from "../utils";
 import { Config } from "../global";
 
@@ -23,7 +23,7 @@ function detectPackageManager(): string {
     } else if (isFileExists(YARN_LOCK_DIR)) {
         return "yarn";
     } else if (isFileExists(PNPM_LOCK_DIR)) {
-        return "pnpm"
+        return "pnpm";
     }
     return "";
 }
@@ -37,7 +37,7 @@ function preHook(DEPTH: number): Config {
         throw new Error("not contain node_modules");
     }
 
-    let PKG_MANAGER = detectPackageManager() 
+    const PKG_MANAGER = detectPackageManager(); 
     
     if (!PKG_MANAGER) {
         throw new Error("lock file lose");
@@ -48,9 +48,9 @@ function preHook(DEPTH: number): Config {
         NODE_MODULES_DIR,
         PKG_MANAGER,
         DEPTH
-    }
+    };
 
-    return config
+    return config;
 }
 
-export default preHook
+export default preHook;

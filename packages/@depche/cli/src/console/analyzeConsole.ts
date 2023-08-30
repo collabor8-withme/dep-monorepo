@@ -12,4 +12,4 @@ function analyzeConsole() {
     log('   -w, --web                              Start a web server for check dependencies\n');
 }
 
-export default analyzeConsole
+export default analyzeConsole;

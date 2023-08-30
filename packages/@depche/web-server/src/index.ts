@@ -1,4 +1,4 @@
-import http from "http"
+import http from "http";
 import { Config, DepGraph } from "../index";
 import { exec } from "child_process";
 
@@ -78,15 +78,15 @@ function webServer(config: Config, depGraph: DepGraph): any {
                         category: node.level,
                         symbolSize: depthType[node.level].symbolSize,
                         itemStyle: { color: depthType[node.level].color }
-                    }
+                    };
                 }),
                 edges: depGraph.edges,
             }
         ]
-    }
+    };
 
-    const str = JSON.stringify(option, null, 2)
-    const PORT = webServer.prototype.PORT
+    const str = JSON.stringify(option, null, 2);
+    const PORT = webServer.prototype.PORT;
     http.createServer((req, res) => {
 
         const html = `
@@ -124,9 +124,9 @@ html, body {
 </body>
 </html>
             `;
-        res.end(html)
+        res.end(html);
     }).listen(PORT, () => {
-        console.log(`The dependency graph is rendered in http://localhost:${PORT}`)
+        console.log(`The dependency graph is rendered in http://localhost:${PORT}`);
         // 在 Unix-like 系统中，使用 open 命令
         if (process.platform === 'darwin') {
             exec(`open http://localhost:${PORT}`);
@@ -139,12 +139,12 @@ html, body {
         else {
             exec(`xdg-open http://localhost:${PORT}`);
         }
-    })
+    });
 }
 
 export {
     webServer
-}
+};
 
 
 

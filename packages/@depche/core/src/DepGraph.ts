@@ -15,12 +15,12 @@ function isArrContainObj(arr: Array<DepNode>, obj: DepNode): boolean {
 }
 
 class DepGraph {
-    nodes: Array<DepNode>
-    edges: Array<DepRel>
+    nodes: Array<DepNode>;
+    edges: Array<DepRel>;
 
     constructor() {
-        this.nodes = []
-        this.edges = []
+        this.nodes = [];
+        this.edges = [];
     }
 
     insertNode(dependence: string, version: string, level: number) {
@@ -29,17 +29,17 @@ class DepGraph {
             dependence,
             version,
             level
-        }
-        !isArrContainObj(this.nodes, node) && this.nodes.push(node)
+        };
+        !isArrContainObj(this.nodes, node) && this.nodes.push(node);
     }
 
     insertEgde(fromNodeId: string, toNodeId: string) {
         const edge: DepRel = {
             source: fromNodeId,
             target: toNodeId
-        }
-        this.edges.push(edge)
+        };
+        this.edges.push(edge);
     }
 }
 
-export default DepGraph
+export default DepGraph;

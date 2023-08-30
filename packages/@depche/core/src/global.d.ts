@@ -18,13 +18,13 @@ type DepRel = {
 }
 
 declare class DepGraph {
-    nodes: Array<DepNode>
-    edges: Array<DepRel>
+    nodes: Array<DepNode>;
+    edges: Array<DepRel>;
     constructor();
 }
 
 declare class DepAnlz {
-    depth: number
+    depth: number;
     constructor(depth: number);
     preHook(): Config;
     coreHook(config: Config): DepGraph;
@@ -38,4 +38,4 @@ export {
     DepRel,
     DepGraph,
     DepAnlz
-}
+};

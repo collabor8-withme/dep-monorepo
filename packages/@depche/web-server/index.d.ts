@@ -18,8 +18,8 @@ type DepRel = {
 }
 
 declare class DepGraph {
-    nodes: Array<DepNode>
-    edges: Array<DepRel>
+    nodes: Array<DepNode>;
+    edges: Array<DepRel>;
     constructor();
 }
 
@@ -29,4 +29,4 @@ export {
     Config,
     DepGraph,
     webServer
-} 
+}; 
