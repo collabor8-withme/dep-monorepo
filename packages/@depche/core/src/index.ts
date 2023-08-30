@@ -5,18 +5,24 @@ import DepGraph from './DepGraph';
 
 class DepAnlz {
 
-    constructor() {}
+    depth: number
+
+    constructor(depth: number) {
+        this.depth = depth
+    }
 
     preHook(): Config {
-        return preHook();
+        return preHook(this.depth);
     }
 
     coreHook(config: Config): DepGraph {
         return coreHook(config);
     }
 
-    postHook (callback: (depGraph: DepGraph) => any) {
-        const result =  callback(this.lifeCycle())
+    postHook (callback: (config: Config, depGraph: DepGraph, ) => any):any {
+        const config = preHook(this.depth);
+        const depGraph = coreHook(config)
+        const result = callback(config, depGraph)
         return result
     }
 

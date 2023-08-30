@@ -6,12 +6,19 @@ function analyze(argument: Array<string>) {
     const options = ["-h", "--help", "-j", "--json", "-w", "--web", "-d", "--depth"]
 
     const help = argument[0]
-    const jsonFlag = argument.includes("-j") || argument.includes("--json")
-    const webFlag = argument.includes("-w") || argument.includes("--web")
-
     if (help === "-h" || help === "--help") {
         return analyzeConsole()
     }
+
+    let depth = 5;
+    if (argument.indexOf("-d") !== -1) {
+        depth = parseInt(argument[argument.indexOf("-d") + 1])
+    } else if (argument.indexOf("--depth") !== -1) {
+        depth = parseInt(argument[argument.indexOf("--depth") + 1])
+    }
+
+    const jsonFlag = argument.includes("-j") || argument.includes("--json")
+    const webFlag = argument.includes("-w") || argument.includes("--web")
 
     const depanlz = new DepAnlz()
     const depGraph = depanlz.lifeCycle()

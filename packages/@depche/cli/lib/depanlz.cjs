@@ -3,7 +3,7 @@
 var core = require('@depche/core');
 var webServer = require('@depche/web-server');
 
-var version = "0.0.1-rcc.10";
+var version = "0.0.1-rcc.11";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -93,11 +93,17 @@ function analyzeConsole() {
 
 function analyze(argument) {
     var help = argument[0];
-    var jsonFlag = argument.includes("-j") || argument.includes("--json");
-    var webFlag = argument.includes("-w") || argument.includes("--web");
     if (help === "-h" || help === "--help") {
         return analyzeConsole();
     }
+    if (argument.indexOf("-d") !== -1) {
+        parseInt(argument[argument.indexOf("-d") + 1]);
+    }
+    else if (argument.indexOf("--depth") !== -1) {
+        parseInt(argument[argument.indexOf("--depth") + 1]);
+    }
+    var jsonFlag = argument.includes("-j") || argument.includes("--json");
+    var webFlag = argument.includes("-w") || argument.includes("--web");
     var depanlz = new core.DepAnlz();
     var depGraph = depanlz.lifeCycle();
     if (jsonFlag && !webFlag) {

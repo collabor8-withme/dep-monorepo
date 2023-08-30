@@ -28,7 +28,7 @@ function detectPackageManager(): string {
     return "";
 }
 
-function preHook() {
+function preHook(DEPTH: number): Config {
     if (!isFileExists(PKG_JSON_DIR)) {
         throw new Error(`\x1b[31m当前工作目录为${CWD},没有发现package.json\x1b[0m`);
     }
@@ -46,7 +46,8 @@ function preHook() {
     const config: Config = {
         PKG_JSON_DIR,
         NODE_MODULES_DIR,
-        PKG_MANAGER
+        PKG_MANAGER,
+        DEPTH
     }
 
     return config

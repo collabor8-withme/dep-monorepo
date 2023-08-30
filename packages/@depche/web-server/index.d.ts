@@ -5,6 +5,13 @@ type DepNode = {
     level: number
 }
 
+type Config = {
+    PKG_JSON_DIR: string,
+    NODE_MODULES_DIR: string,
+    PKG_MANAGER: string,
+    DEPTH: number
+}
+
 type DepRel = {
     source: string,
     target: string
@@ -19,6 +26,7 @@ declare class DepGraph {
 declare function webServer(depGraph: DepGraph): any
 
 export {
+    Config,
     DepGraph,
     webServer
 } 

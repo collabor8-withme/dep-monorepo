@@ -38,7 +38,7 @@ function detectPackageManager() {
     }
     return "";
 }
-function preHook() {
+function preHook(DEPTH) {
     if (!isFileExists(PKG_JSON_DIR)) {
         throw new Error("\u001B[31m\u5F53\u524D\u5DE5\u4F5C\u76EE\u5F55\u4E3A".concat(CWD, ",\u6CA1\u6709\u53D1\u73B0package.json\u001B[0m"));
     }
@@ -52,13 +52,14 @@ function preHook() {
     var config = {
         PKG_JSON_DIR: PKG_JSON_DIR,
         NODE_MODULES_DIR: NODE_MODULES_DIR,
-        PKG_MANAGER: PKG_MANAGER
+        PKG_MANAGER: PKG_MANAGER,
+        DEPTH: DEPTH
     };
     return config;
 }
 
 function isArrContainObj(arr, obj) {
-    return arr.some(function (node) { return node.dependence === obj.dependence; });
+    return arr.some(function (node) { return node.id === obj.id; });
 }
 var DepGraph = /** @class */ (function () {
     function DepGraph() {
@@ -74,37 +75,53 @@ var DepGraph = /** @class */ (function () {
         };
         !isArrContainObj(this.nodes, node) && this.nodes.push(node);
     };
+    DepGraph.prototype.insertEgde = function (fromNodeId, toNodeId) {
+        var edge = {
+            source: fromNodeId,
+            target: toNodeId
+        };
+        if (edge.source !== "")
+            this.edges.push(edge);
+    };
     return DepGraph;
 }());
 
 var depGraph = new DepGraph();
-function recursiveDep4YarnAndNpm(rootDep, NODE_MODULES_DIR, level, processedDeps) {
-    if (level === void 0) { level = 0; }
+function recursiveDep4YarnAndNpm(rootDep, sourceId, config, level, processedDeps) {
+    if (level === void 0) { level = 1; }
     if (processedDeps === void 0) { processedDeps = new Set(); }
     for (var depName in rootDep) {
+        var NODE_MODULES_DIR = config.NODE_MODULES_DIR, DEPTH = config.DEPTH;
+        if (level === DEPTH + 1) {
+            return;
+        }
         if (processedDeps.has(depName)) {
             continue;
         }
         processedDeps.add(depName);
+        var currentNodeId = depName + rootDep[depName];
+        console.log(currentNodeId, rootDep);
         depGraph.insertNode(depName, rootDep[depName], level);
+        depGraph.insertEgde(sourceId, currentNodeId);
         var nestedPkgJson = path.join(NODE_MODULES_DIR, depName, "package.json");
         var content = fs.readFileSync(nestedPkgJson, {
             encoding: "utf-8"
         });
         var childDep = JSON.parse(content).dependencies;
-        recursiveDep4YarnAndNpm(childDep, NODE_MODULES_DIR, level + 1, processedDeps);
+        recursiveDep4YarnAndNpm(childDep, currentNodeId, config, level + 1, processedDeps);
         processedDeps.delete(depName);
     }
 }
 function coreHook(config) {
-    var PKG_JSON_DIR = config.PKG_JSON_DIR, NODE_MODULES_DIR = config.NODE_MODULES_DIR, PKG_MANAGER = config.PKG_MANAGER;
+    var PKG_JSON_DIR = config.PKG_JSON_DIR, PKG_MANAGER = config.PKG_MANAGER;
     if (PKG_MANAGER === "yarn" || "npm") {
         var content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        var rootDep = JSON.parse(content).dependencies;
-        recursiveDep4YarnAndNpm(rootDep, NODE_MODULES_DIR);
+        var _a = JSON.parse(content), rootDep = _a.dependencies, name_1 = _a.name, version = _a.version;
+        recursiveDep4YarnAndNpm(rootDep, name_1 + version, config);
     }
+    // no finish
     if (PKG_MANAGER === "pnpm") {
         var content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
@@ -115,16 +132,19 @@ function coreHook(config) {
 }
 
 var DepAnlz = /** @class */ (function () {
-    function DepAnlz() {
+    function DepAnlz(depth) {
+        this.depth = depth;
     }
     DepAnlz.prototype.preHook = function () {
-        return preHook();
+        return preHook(this.depth);
     };
     DepAnlz.prototype.coreHook = function (config) {
         return coreHook(config);
     };
     DepAnlz.prototype.postHook = function (callback) {
-        var result = callback(this.lifeCycle());
+        var config = preHook(this.depth);
+        var depGraph = coreHook(config);
+        var result = callback(config, depGraph);
         return result;
     };
     DepAnlz.prototype.lifeCycle = function () {

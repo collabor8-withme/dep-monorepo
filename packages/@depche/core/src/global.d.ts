@@ -1,7 +1,8 @@
 type Config = {
     PKG_JSON_DIR: string,
     NODE_MODULES_DIR: string,
-    PKG_MANAGER: string
+    PKG_MANAGER: string,
+    DEPTH: number
 }
 
 type DepNode = {

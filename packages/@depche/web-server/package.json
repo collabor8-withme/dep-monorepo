@@ -1,6 +1,6 @@
 {
   "name": "@depche/web-server",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.1-alpha.7",
   "description": "",
   "main": "./dist/bundler.cjs",
   "module": "./dist/bundler.esm.js",

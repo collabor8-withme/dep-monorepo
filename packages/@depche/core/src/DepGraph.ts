@@ -11,7 +11,7 @@ type DepRel = {
 }
 
 function isArrContainObj(arr: Array<DepNode>, obj: DepNode): boolean {
-    return arr.some(node => node.dependence === obj.dependence);
+    return arr.some(node => node.id === obj.id);
 }
 
 class DepGraph {
@@ -33,14 +33,13 @@ class DepGraph {
         !isArrContainObj(this.nodes, node) && this.nodes.push(node)
     }
 
-    // insertEgde(dependence, version, fromNode) {
-        // const edge = {
-        //     source: fromNode,
-        //     target: dependence + version
-        // }
-
-        // this.edges.push(edge)
-    // }
+    insertEgde(fromNodeId: string, toNodeId: string) {
+        const edge: DepRel = {
+            source: fromNodeId,
+            target: toNodeId
+        }
+        if(edge.source !== "") this.edges.push(edge)
+    }
 }
 
 export default DepGraph

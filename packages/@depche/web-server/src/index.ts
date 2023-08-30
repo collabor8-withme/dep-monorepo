@@ -1,7 +1,7 @@
 import http from "http"
-import { DepGraph } from "../index";
+import { Config, DepGraph } from "../index";
 import { exec } from "child_process";
-function webServer(depGraph: DepGraph): any {
+function webServer(config: Config, depGraph: DepGraph): any {
     const categories = [
         { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
         { name: 'depth2', color: '#4992ff', symbolSize: 70 },
@@ -14,8 +14,14 @@ function webServer(depGraph: DepGraph): any {
 
     const option = {
         title: {
-            text: "test depanlz",
-            left: "center"
+            text: "DepAnlz - @depanlz/web-server",
+            left: "center",
+            textStyle: {
+                color: "white"
+            }
+        },
+        tooltip: {
+            trigger: "item"
         },
         color: ['#ff6e76', '#4992ff', '#7cffb2', '#8d48e3', '#58d9f9', '#05c091', '#ff8a45'],
         legend: {
@@ -46,8 +52,8 @@ function webServer(depGraph: DepGraph): any {
                 edgeSymbolSize: [4, 10],
                 label: {
                     show: true,
-                    rotate: 0,
-                    formatter: "{b} {@value}"
+                    color: "#fff",
+                    formatter: "{b}"
                 },
                 emphasis: {
                     focus: 'adjacency',
@@ -57,16 +63,18 @@ function webServer(depGraph: DepGraph): any {
                     }
                 },
                 lineStyle: {
+                    color: "source",
                     width: 0.5,
-                    curveness: 0.3,
+                    curveness: 0.1,
                     opacity: 0.7
                 },
-                categories: categories.map(category => ({ name: category.name })),
+                categories: categories.slice(0, config.DEPTH),
                 nodes: depGraph.nodes.map(node => ({
                     ...node,
-                    name: node.dependence,
-                    symbolSize: categories[node.level].symbolSize,
-                    itemStyle: { color: categories[node.level].color }
+                    name: node.id,
+                    category: node.level - 1,
+                    symbolSize: categories[node.level - 1].symbolSize,
+                    itemStyle: { color: categories[node.level - 1].color }
                 })),
                 edges: depGraph.edges,
             }
