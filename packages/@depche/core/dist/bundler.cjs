@@ -108,10 +108,10 @@ var DepGraph = /** @class */ (function () {
 }());
 
 var depGraph = new DepGraph();
-function recursiveDep4YarnAndNpm(rootDep, sourceId, config, level, processedDeps) {
+function recursiveDep4YarnAndNpm(dependencies, sourceId, config, level, processedDeps) {
     if (level === void 0) { level = 1; }
     if (processedDeps === void 0) { processedDeps = new Set(); }
-    for (var depName in rootDep) {
+    for (var depName in dependencies) {
         var NODE_MODULES_DIR = config.NODE_MODULES_DIR, DEPTH = config.DEPTH;
         if (level === DEPTH + 1) {
             return;
@@ -120,16 +120,16 @@ function recursiveDep4YarnAndNpm(rootDep, sourceId, config, level, processedDeps
             continue;
         }
         processedDeps.add(depName);
-        var currentNodeId = depName + rootDep[depName];
-        console.log(currentNodeId, rootDep);
-        depGraph.insertNode(depName, rootDep[depName], level);
-        depGraph.insertEgde(sourceId, currentNodeId);
+        // 记录目标节点
+        var targetId = depName + dependencies[depName];
+        depGraph.insertNode(depName, dependencies[depName], level);
+        depGraph.insertEgde(sourceId, targetId);
         var nestedPkgJson = path__namespace.join(NODE_MODULES_DIR, depName, "package.json");
         var content = fs__namespace.readFileSync(nestedPkgJson, {
             encoding: "utf-8"
         });
-        var childDep = JSON.parse(content).dependencies;
-        recursiveDep4YarnAndNpm(childDep, currentNodeId, config, level + 1, processedDeps);
+        var dep = JSON.parse(content).dependencies;
+        recursiveDep4YarnAndNpm(dep, targetId, config, level + 1, processedDeps);
         processedDeps.delete(depName);
     }
 }
@@ -139,15 +139,17 @@ function coreHook(config) {
         var content = fs__namespace.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        var _a = JSON.parse(content), rootDep = _a.dependencies, name_1 = _a.name, version = _a.version;
-        recursiveDep4YarnAndNpm(rootDep, name_1 + version, config);
+        var _a = JSON.parse(content), dependencies = _a.dependencies, name_1 = _a.name, version = _a.version;
+        var sourceId = name_1 + version || "";
+        depGraph.insertNode(name_1, version, 0);
+        recursiveDep4YarnAndNpm(dependencies, sourceId, config);
     }
     // no finish
     if (PKG_MANAGER === "pnpm") {
         var content = fs__namespace.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        JSON.parse(content).dependencies;
+        var dependencies = JSON.parse(content).dependencies;
     }
     return depGraph;
 }

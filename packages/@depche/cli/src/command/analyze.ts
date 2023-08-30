@@ -10,7 +10,7 @@ function analyze(argument: Array<string>) {
         return analyzeConsole()
     }
 
-    let depth = 5;
+    let depth;
     if (argument.indexOf("-d") !== -1) {
         depth = parseInt(argument[argument.indexOf("-d") + 1])
     } else if (argument.indexOf("--depth") !== -1) {

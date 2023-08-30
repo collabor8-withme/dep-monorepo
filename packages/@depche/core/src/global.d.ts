@@ -27,7 +27,7 @@ declare class DepAnlz {
     constructor();
     preHook(): Config;
     coreHook(config: Config): DepGraph;
-    postHook(callback: (depGraph: DepGraph) => any): any;
+    postHook(callback: (config:Config, depGraph: DepGraph) => any): any;
     lifeCycle(): DepGraph;
 }
 

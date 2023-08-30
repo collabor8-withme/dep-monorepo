@@ -23,7 +23,7 @@ declare class DepGraph {
     constructor();
 }
 
-declare function webServer(depGraph: DepGraph): any
+declare function webServer(config: Config, depGraph: DepGraph): any
 
 export {
     Config,

@@ -6,12 +6,12 @@ import { Config } from "../global";
 const depGraph: DepGraph = new DepGraph();
 
 function recursiveDep4YarnAndNpm(
-    rootDep: { [key: string]: string },
+    dependencies: { [key: string]: string },
     sourceId: string,
     config: Config,
     level: number = 1,
     processedDeps: Set<string> = new Set()) {
-    for (const depName in rootDep) {
+    for (const depName in dependencies) {
 
         const { NODE_MODULES_DIR, DEPTH } = config
 
@@ -24,18 +24,18 @@ function recursiveDep4YarnAndNpm(
         }
         processedDeps.add(depName)
 
-        const currentNodeId = depName + rootDep[depName]
-        console.log(currentNodeId, rootDep)
+        // 记录目标节点
+        const targetId = depName + dependencies[depName]
 
-        depGraph.insertNode(depName, rootDep[depName], level)
-        depGraph.insertEgde(sourceId, currentNodeId)
+        depGraph.insertNode(depName, dependencies[depName], level)
+        depGraph.insertEgde(sourceId, targetId)
         const nestedPkgJson = path.join(NODE_MODULES_DIR, depName, "package.json");
         const content = fs.readFileSync(nestedPkgJson, {
             encoding: "utf-8"
         });
 
-        const { dependencies: childDep } = JSON.parse(content)
-        recursiveDep4YarnAndNpm(childDep, currentNodeId, config, level + 1, processedDeps)
+        const { dependencies: dep } = JSON.parse(content)
+        recursiveDep4YarnAndNpm(dep, targetId, config, level + 1, processedDeps)
 
         processedDeps.delete(depName)
     }
@@ -49,8 +49,10 @@ function coreHook(config: Config) {
         const content = fs.readFileSync(PKG_JSON_DIR, {
             encoding: "utf-8"
         });
-        const { dependencies: rootDep, name, version } = JSON.parse(content);
-        recursiveDep4YarnAndNpm(rootDep, name+version, config)
+        const { dependencies, name, version } = JSON.parse(content);
+        const sourceId = name + version || ""
+        depGraph.insertNode(name, version, 0)
+        recursiveDep4YarnAndNpm(dependencies, sourceId, config)
     }
 
     // no finish

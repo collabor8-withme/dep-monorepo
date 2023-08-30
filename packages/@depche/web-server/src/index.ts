@@ -2,7 +2,7 @@ import http from "http"
 import { Config, DepGraph } from "../index";
 import { exec } from "child_process";
 function webServer(config: Config, depGraph: DepGraph): any {
-    const categories = [
+    const depthType = [
         { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
         { name: 'depth2', color: '#4992ff', symbolSize: 70 },
         { name: 'depth3', color: '#7cffb2', symbolSize: 50 },
@@ -68,13 +68,13 @@ function webServer(config: Config, depGraph: DepGraph): any {
                     curveness: 0.1,
                     opacity: 0.7
                 },
-                categories: categories.slice(0, config.DEPTH),
+                categories: depthType.slice(0, config.DEPTH),
                 nodes: depGraph.nodes.map(node => ({
                     ...node,
                     name: node.id,
                     category: node.level - 1,
-                    symbolSize: categories[node.level - 1].symbolSize,
-                    itemStyle: { color: categories[node.level - 1].color }
+                    symbolSize: depthType[node.level - 1].symbolSize,
+                    itemStyle: { color: depthType[node.level - 1].color }
                 })),
                 edges: depGraph.edges,
             }

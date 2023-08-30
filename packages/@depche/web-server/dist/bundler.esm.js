@@ -35,7 +35,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
 };
 
 function webServer(config, depGraph) {
-    var categories = [
+    var depthType = [
         { name: 'depth1', color: '#ff6e76', symbolSize: 100 },
         { name: 'depth2', color: '#4992ff', symbolSize: 70 },
         { name: 'depth3', color: '#7cffb2', symbolSize: 50 },
@@ -100,8 +100,8 @@ function webServer(config, depGraph) {
                     curveness: 0.1,
                     opacity: 0.7
                 },
-                categories: categories.slice(0, config.DEPTH),
-                nodes: depGraph.nodes.map(function (node) { return (__assign(__assign({}, node), { name: node.id, category: node.level - 1, symbolSize: categories[node.level - 1].symbolSize, itemStyle: { color: categories[node.level - 1].color } })); }),
+                categories: depthType.slice(0, config.DEPTH),
+                nodes: depGraph.nodes.map(function (node) { return (__assign(__assign({}, node), { name: node.id, category: node.level - 1, symbolSize: depthType[node.level - 1].symbolSize, itemStyle: { color: depthType[node.level - 1].color } })); }),
                 edges: depGraph.edges,
             }
         ]
